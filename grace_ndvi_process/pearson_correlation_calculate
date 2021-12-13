@@ -1,0 +1,105 @@
+## Read the resampled ndvi data
+library(spatialEco)
+
+setwd('D:/ndvidata/cumNDVI/matched_cumNDVI_tif')
+ndvi_data_list <- sapply(Sys.glob('ndvi_*.tif'),raster)
+
+for (i in 1:14) {
+  ndvi_name <- paste('ndvi','data',i+2002,sep = '_')
+  assign(ndvi_name,ndvi_data_list[[i]])
+}
+
+for (i in 2003:2016) {
+  grace_data_name <- paste('grace',i,'total',sep = '_')
+  ndvi_data_name <- paste('ndvi','data',i,sep = '_')
+  assign('grace_data_tar',get(grace_data_name))
+  assign('ndvi_data_tar',get(ndvi_data_name))
+  ndvi_save_name <- paste('ndvi','point',i,sep = '_')
+  grace_save_name <- paste('grace','point',i,sep = '_')
+  grace_point_data <- rasterToPoints(grace_data_tar)
+  ndvi_point_data <- rasterToPoints(ndvi_data_tar)
+  assign(ndvi_save_name,ndvi_point_data)
+  assign(grace_save_name,grace_point_data)
+  grace_val_name <- paste('grace','val',i,sep = '_')
+  ndvi_val_name <- paste('ndvi','val',i,sep = '_')
+  ndvi_val_this <- get(ndvi_save_name)
+  grace_val_this <- get(grace_save_name)
+  assign(grace_val_name,grace_val_this[,3])
+  assign(ndvi_val_name,ndvi_val_this[,3])
+}
+
+baseline <- (ndvi_point_2004 + ndvi_point_2005 + ndvi_point_2006 + ndvi_point_2007 + ndvi_point_2008 + ndvi_point_2009)/6
+
+ndvi_point_2003[,3] <- ndvi_point_2003[,3] - baseline[,3]
+ndvi_point_2004[,3] <- ndvi_point_2004[,3] - baseline[,3]
+ndvi_point_2005[,3] <- ndvi_point_2005[,3] - baseline[,3]
+ndvi_point_2006[,3] <- ndvi_point_2006[,3] - baseline[,3]
+ndvi_point_2007[,3] <- ndvi_point_2007[,3] - baseline[,3]
+ndvi_point_2008[,3] <- ndvi_point_2008[,3] - baseline[,3]
+ndvi_point_2009[,3] <- ndvi_point_2009[,3] - baseline[,3]
+ndvi_point_2010[,3] <- ndvi_point_2010[,3] - baseline[,3]
+ndvi_point_2011[,3] <- ndvi_point_2011[,3] - baseline[,3]
+ndvi_point_2012[,3] <- ndvi_point_2012[,3] - baseline[,3]
+ndvi_point_2013[,3] <- ndvi_point_2013[,3] - baseline[,3]
+ndvi_point_2014[,3] <- ndvi_point_2014[,3] - baseline[,3]
+ndvi_point_2015[,3] <- ndvi_point_2015[,3] - baseline[,3]
+ndvi_point_2016[,3] <- ndvi_point_2016[,3] - baseline[,3]
+
+
+
+
+
+# pearson correlation
+grace_data_list <- mget(ls(pattern = 'grace_point_20*'))
+ndvi_data_list <- mget(ls(pattern = 'ndvi_point_20*'))
+
+
+
+grace_data_df <-as.data.frame(mget(ls(pattern = 'grace_val_20*')))
+ndvi_data_df <-as.data.frame(mget(ls(pattern = 'ndvi_val_20*')))
+colnames(grace_data_df) <- c(2003:2016)
+colnames(ndvi_data_df) <- c(2003:2016)
+
+ndvi_data_df[is.na(ndvi_data_df)] <- 0
+
+corValues_test <- vector(mode = 'numeric')
+pvalues_test <- vector(mode = 'numeric')
+
+for (i in 1:939) {
+  ndvi_cell_this <- as.vector(ndvi_data_df[i,],mode = 'numeric')
+  grace_cell_this <- as.vector(grace_data_df[i,],mode = 'numeric')
+  corValues_test[i] <- cor(x = grace_cell_this, y = ndvi_cell_this, method = 'pearson',use='pairwise.complete.obs')
+  cor_table <- cor.test(x = grace_cell_this, y = ndvi_cell_this, method = 'pearson',use='pairwise.complete.obs')
+  pvalues_test[i] <- cor_table$p.value
+}
+
+cor_test <- grace_2003_total_points
+cor_test[,3] <- corValues_test
+colnames(cor_test) <- c('Long','Lat','PearsonCorrelation')
+
+p_test <- grace_2003_total_points
+p_test[,3] <- pvalues_test
+colnames(p_test) <- c('Long','Lat','p_value')
+
+p_test_plot <- as.data.frame(p_test)
+p_test_plot$cuts=cut(p_test_plot$p_value,breaks=c(0,0.01,0.05,1))
+
+ggplot() +
+  geom_sf(data = chn_boundary)+
+  geom_raster(data = p_test_plot,aes(x=Long,y=Lat,fill=cuts)) +
+  scale_fill_brewer("P-Value",type = "seq", palette = "RdYlBu")
+
+
+cor_df <- as.data.frame(cor_test)
+pval_df <- as.data.frame(p_test_plot)
+
+cor_p_df <- cbind(pval_df,cor_df)
+cor_p_df <- cor_p_df[,c(-5,-6)]
+
+cor_p_point <- cor_p_df %>%
+  filter(p_value <= 0.05)
+colnames(cor_p_df) <- c('Long','Lat','pval','cuts','Coefficient')
+
+write.csv(cor_p_point, file ="D:/ndvidata/table/cor.csv")
+
+
