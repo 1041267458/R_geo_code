@@ -1,0 +1,860 @@
+  setwd("D:/ndvidata/grace_chn/chn_tif")
+  grace_data <- sapply(Sys.glob("cg*.tif"), raster);
+  
+  ## create an empty matrix to store the mean of grace
+  grace_mean <- grace_data[[1]][[1]] - grace_data[[1]][[1]];
+
+## calculate the mean of grace
+for (i in 1:151 ) {
+  assign(paste0('cg',i,sep=''),grace_data[[i]][[1]])
+};
+
+grace_mean <- matrix(nrow = 151, ncol = 1);
+
+for (i in 1:151 ) {
+  grace_points <-rasterToPoints(grace_data[[i]][[1]])
+  grace_mean[i] = mean(grace_points[,3])
+};
+
+## read the lon and lat of raster data
+name_grace_point <- c(1:156);
+name_grace_point <- as.character(name_grace_point)
+grace_value <- list()
+
+
+## find and fill the missing data
+    date_index <- read.table('clipboard', sep = '\t',header = FALSE);
+    colnames(date_index) <- c("date","index")
+    date_index_yearmon <- transform(date_index, yearmon = as.yearmon(as.character(date), "%Y%m"));
+
+
+d <- as.Date(date_index_yearmon$yearmon)
+date_range <- seq.Date(min(d),max(d),by = "month")
+missing_date <- date_range[!date_range %in% d]
+missing_date <- format(missing_date, "%Y%m")
+missing_date <- missing_date[1:17]
+missing_date
+
+year <- as.numeric(format(date_index_yearmon$yearmon,'%Y'));
+month <- as.numeric(format(date_index_yearmon$yearmon,'%m'));
+date_index_yearmon <- cbind(date_index_yearmon,year,month);
+
+month_name <- c(month.abb)
+for (i in 1:12) {
+  nam <-paste(month_name[i],"_index",sep = "")
+  assign(nam,date_index_yearmon %>% filter(month == i & year != 2017 ))
+}
+
+
+## calculating grace mean cell by cell
+
+## Jan
+grace_jan_sum <- grace_jan[[1]] - grace_jan[[1]]
+
+for (i in 1:length(grace_jan[1])) {
+    grace_jan_sum <- grace_jan_sum + grace_jan[[i]]
+}
+
+grace_jan_mean <- grace_jan_sum / length(grace_jan[[1]])
+
+## Feb
+grace_feb_sum <- grace_jan[[1]] - grace_jan[[1]]
+
+for (i in 1:length(grace_feb[1])) {
+  grace_feb_sum <- grace_feb_sum + grace_feb[[i]]
+}
+
+grace_feb_mean <- grace_feb_sum / length(grace_feb[[1]])
+
+## Mar
+grace_mar_sum <- grace_jan[[1]] - grace_jan[[1]]
+
+for (i in 1:length(grace_mar[1])) {
+  grace_mar_sum <- grace_mar_sum + grace_mar[[i]]
+}
+
+grace_mar_mean <- grace_mar_sum / length(grace_mar[[1]])
+
+## Apr
+grace_apr_sum <- grace_jan[[1]] - grace_jan[[1]]
+
+for (i in 1:length(grace_apr[1])) {
+  grace_apr_sum <- grace_apr_sum + grace_apr[[i]]
+}
+
+grace_apr_mean <- grace_apr_sum / length(grace_apr[[1]])
+
+## May
+grace_may_sum <- grace_jan[[1]] - grace_jan[[1]]
+
+for (i in 1:length(grace_may[1])) {
+  grace_may_sum <- grace_may_sum + grace_may[[i]]
+}
+
+grace_may_mean <- grace_may_sum / length(grace_may[[1]])
+
+## Jun
+grace_jun_sum <- grace_jan[[1]] - grace_jan[[1]]
+
+for (i in 1:length(grace_jun[1])) {
+  grace_jun_sum <- grace_jun_sum + grace_jun[[i]]
+}
+
+grace_jun_mean <- grace_jun_sum / length(grace_jun[[1]])
+
+## Jul
+grace_jul_sum <- grace_jan[[1]] - grace_jan[[1]]
+
+for (i in 1:length(grace_jul[1])) {
+  grace_jul_sum <- grace_jul_sum + grace_jul[[i]]
+}
+
+grace_jul_mean <- grace_jul_sum / length(grace_jul[[1]])
+
+## Aug
+grace_aug_sum <- grace_jan[[1]] - grace_jan[[1]]
+
+for (i in 1:length(grace_aug[1])) {
+  grace_aug_sum <- grace_aug_sum + grace_aug[[i]]
+}
+
+grace_aug_mean <- grace_aug_sum / length(grace_aug[[1]])
+
+## Sep
+grace_sep_sum <- grace_jan[[1]] - grace_jan[[1]]
+
+for (i in 1:length(grace_sep[1])) {
+  grace_sep_sum <- grace_sep_sum + grace_sep[[i]]
+}
+
+grace_sep_mean <- grace_sep_sum / length(grace_sep[[1]])
+
+## Oct
+grace_oct_sum <- grace_jan[[1]] - grace_jan[[1]]
+
+for (i in 1:length(grace_oct[1])) {
+  grace_oct_sum <- grace_oct_sum + grace_oct[[i]]
+}
+
+grace_oct_mean <- grace_oct_sum / length(grace_oct[[1]])
+
+## Nov
+grace_nov_sum <- grace_jan[[1]] - grace_jan[[1]]
+
+for (i in 1:length(grace_nov[1])) {
+  grace_nov_sum <- grace_nov_sum + grace_nov[[i]]
+}
+
+grace_nov_mean <- grace_nov_sum / length(grace_nov[[1]])
+
+## Dec
+grace_dec_sum <- grace_jan[[1]] - grace_jan[[1]]
+
+for (i in 1:length(grace_dec[1])) {
+  grace_dec_sum <- grace_dec_sum + grace_dec[[i]]
+}
+
+grace_dec_mean <- grace_dec_sum / length(grace_dec[[1]])
+
+
+## fill the missing date
+index <- read.csv('D:/ndvidata/grainproduct/index.csv',header = F)
+for (i in 1:151) {
+  nm <- paste0("cg",index$V5[i],sep = '')
+  assign(nm,get(paste("cg",i,sep = '')))
+}
+
+cg200306 <- grace_jun_mean;
+cg201101 <- grace_jan_mean;
+cg201106 <- grace_jun_mean;
+cg201205 <- grace_may_mean;
+cg201210 <- grace_oct_mean;
+cg201303 <- grace_mar_mean;
+cg201308 <- grace_aug_mean;
+cg201312 <- grace_dec_mean;
+cg201402 <- grace_feb_mean;
+cg201407 <- grace_jul_mean;
+cg201412 <- grace_dec_mean;
+cg201506 <- grace_jun_mean;
+cg201510 <- grace_oct_mean;
+cg201511 <- grace_nov_mean;
+cg201604 <- grace_apr_mean;
+cg201609 <- grace_sep_mean;
+cg201610 <- grace_oct_mean;
+
+grace_list <- sapply(varnames[2:169], get)
+
+grace_list_ToPoint <- lapply(grace_list,rasterToPoints)
+
+area <- area_of_pixel(grace_2003_total_points[,2])
+
+## 2003
+grace_2003_index <- ls(pattern = "cg2003.*")
+grace_2003_list <- sapply(grace_2003_index, get)
+grace_2003_total<- overlay(cg200301,
+                      cg200301,
+                      fun=function(r1, r2){return(r1-r2)})
+for (i in 1:12) {
+  grace_2003_total <- overlay(grace_2003_total,
+                              grace_2003_list[[i]],
+                              fun=function(r1, r2){return(r1+r2)})
+}
+grace_2003_total_points <- rasterToPoints(grace_2003_total)
+for (i in 1:939) {
+  grace_2003_total_points[i,3] <- grace_2003_total_points[i,3] * area[i]
+} 
+
+
+## 2004
+grace_2004_index <- ls(pattern = "cg2004.*")
+grace_2004_list <- sapply(grace_2004_index, get)
+grace_2004_total<- overlay(cg200401,
+                           cg200401,
+                           fun=function(r1, r2){return(r1-r2)})
+for (i in 1:12) {
+  grace_2004_total <- overlay(grace_2004_total,
+                              grace_2004_list[[i]],
+                              fun=function(r1, r2){return(r1+r2)})
+}
+
+grace_2004_total_points <- rasterToPoints(grace_2004_total)
+for (i in 1:939) {
+  grace_2004_total_points[i,3] <- grace_2004_total_points[i,3] * area[i]
+} 
+
+
+## 2005
+grace_2005_index <- ls(pattern = "cg2005.*")
+grace_2005_list <- sapply(grace_2005_index, get)
+grace_2005_total<- overlay(cg200501,
+                           cg200501,
+                           fun=function(r1, r2){return(r1-r2)})
+for (i in 1:12) {
+  grace_2005_total <- overlay(grace_2005_total,
+                              grace_2005_list[[i]],
+                              fun=function(r1, r2){return(r1+r2)})
+}
+
+grace_2005_total_points <- rasterToPoints(grace_2005_total)
+for (i in 1:939) {
+  grace_2005_total_points[i,3] <- grace_2005_total_points[i,3] * area[i]
+} 
+
+
+## 2006
+grace_2006_index <- ls(pattern = "cg2006.*")
+grace_2006_list <- sapply(grace_2006_index, get)
+grace_2006_total<- overlay(cg200601,
+                           cg200601,
+                           fun=function(r1, r2){return(r1-r2)})
+for (i in 1:12) {
+  grace_2006_total <- overlay(grace_2006_total,
+                              grace_2006_list[[i]],
+                              fun=function(r1, r2){return(r1+r2)})
+}
+
+grace_2006_total_points <- rasterToPoints(grace_2006_total)
+for (i in 1:939) {
+  grace_2006_total_points[i,3] <- grace_2006_total_points[i,3] * area[i]
+} 
+
+
+## 2007
+grace_2007_index <- ls(pattern = "cg2007.*")
+grace_2007_list <- sapply(grace_2007_index, get)
+grace_2007_total<- overlay(cg200701,
+                           cg200701,
+                           fun=function(r1, r2){return(r1-r2)})
+for (i in 1:12) {
+  grace_2007_total <- overlay(grace_2007_total,
+                              grace_2007_list[[i]],
+                              fun=function(r1, r2){return(r1+r2)})
+}
+
+grace_2007_total_points <- rasterToPoints(grace_2007_total)
+for (i in 1:939) {
+  grace_2007_total_points[i,3] <- grace_2007_total_points[i,3] * area[i]
+} 
+
+
+## 2008
+grace_2008_index <- ls(pattern = "cg2008.*")
+grace_2008_list <- sapply(grace_2008_index, get)
+grace_2008_total<- overlay(cg200801,
+                           cg200801,
+                           fun=function(r1, r2){return(r1-r2)})
+for (i in 1:12) {
+  grace_2008_total <- overlay(grace_2008_total,
+                              grace_2008_list[[i]],
+                              fun=function(r1, r2){return(r1+r2)})
+}
+
+grace_2008_total_points <- rasterToPoints(grace_2008_total)
+for (i in 1:939) {
+  grace_2008_total_points[i,3] <- grace_2008_total_points[i,3] * area[i]
+} 
+
+
+## 2009
+grace_2009_index <- ls(pattern = "cg2009.*")
+grace_2009_list <- sapply(grace_2009_index, get)
+grace_2009_total<- overlay(cg200901,
+                           cg200901,
+                           fun=function(r1, r2){return(r1-r2)})
+for (i in 1:12) {
+  grace_2009_total <- overlay(grace_2009_total,
+                              grace_2009_list[[i]],
+                              fun=function(r1, r2){return(r1+r2)})
+}
+
+grace_2009_total_points <- rasterToPoints(grace_2009_total)
+for (i in 1:939) {
+  grace_2009_total_points[i,3] <- grace_2009_total_points[i,3] * area[i]
+} 
+
+
+## 2010
+grace_2010_index <- ls(pattern = "cg2010.*")
+grace_2010_list <- sapply(grace_2010_index, get)
+grace_2010_total<- overlay(cg201001,
+                           cg201001,
+                           fun=function(r1, r2){return(r1-r2)})
+for (i in 1:12) {
+  grace_2010_total <- overlay(grace_2010_total,
+                              grace_2010_list[[i]],
+                              fun=function(r1, r2){return(r1+r2)})
+}
+
+grace_2010_total_points <- rasterToPoints(grace_2010_total)
+for (i in 1:939) {
+  grace_2010_total_points[i,3] <- grace_2010_total_points[i,3] * area[i]
+} 
+
+
+## 2011
+grace_2011_index <- ls(pattern = "cg2011.*")
+grace_2011_list <- sapply(grace_2011_index, get)
+grace_2011_total<- overlay(cg201101,
+                           cg201101,
+                           fun=function(r1, r2){return(r1-r2)})
+for (i in 1:12) {
+  grace_2011_total <- overlay(grace_2011_total,
+                              grace_2011_list[[i]],
+                              fun=function(r1, r2){return(r1+r2)})
+}
+
+grace_2011_total_points <- rasterToPoints(grace_2011_total)
+for (i in 1:939) {
+  grace_2011_total_points[i,3] <- grace_2011_total_points[i,3] * area[i]
+} 
+
+
+## 2012
+grace_2012_index <- ls(pattern = "cg2012.*")
+grace_2012_list <- sapply(grace_2012_index, get)
+grace_2012_total<- overlay(cg201201,
+                           cg201201,
+                           fun=function(r1, r2){return(r1-r2)})
+for (i in 1:12) {
+  grace_2012_total <- overlay(grace_2012_total,
+                              grace_2012_list[[i]],
+                              fun=function(r1, r2){return(r1+r2)})
+}
+
+grace_2012_total_points <- rasterToPoints(grace_2012_total)
+for (i in 1:939) {
+  grace_2012_total_points[i,3] <- grace_2012_total_points[i,3] * area[i]
+} 
+
+
+## 2013
+grace_2013_index <- ls(pattern = "cg2013.*")
+grace_2013_list <- sapply(grace_2013_index, get)
+grace_2013_total<- overlay(cg201301,
+                           cg201301,
+                           fun=function(r1, r2){return(r1-r2)})
+for (i in 1:12) {
+  grace_2013_total <- overlay(grace_2013_total,
+                              grace_2013_list[[i]],
+                              fun=function(r1, r2){return(r1+r2)})
+}
+
+grace_2013_total_points <- rasterToPoints(grace_2013_total)
+for (i in 1:939) {
+  grace_2013_total_points[i,3] <- grace_2013_total_points[i,3] * area[i]
+} 
+
+
+## 2014
+grace_2014_index <- ls(pattern = "cg2014.*")
+grace_2014_list <- sapply(grace_2014_index, get)
+grace_2014_total<- overlay(cg201401,
+                           cg201401,
+                           fun=function(r1, r2){return(r1-r2)})
+for (i in 1:12) {
+  grace_2014_total <- overlay(grace_2014_total,
+                              grace_2014_list[[i]],
+                              fun=function(r1, r2){return(r1+r2)})
+}
+
+grace_2014_total_points <- rasterToPoints(grace_2014_total)
+for (i in 1:939) {
+  grace_2014_total_points[i,3] <- grace_2014_total_points[i,3] * area[i]
+} 
+
+
+## 2015
+grace_2015_index <- ls(pattern = "cg2015.*")
+grace_2015_list <- sapply(grace_2015_index, get)
+grace_2015_total<- overlay(cg201501,
+                           cg201501,
+                           fun=function(r1, r2){return(r1-r2)})
+for (i in 1:12) {
+  grace_2015_total <- overlay(grace_2015_total,
+                              grace_2015_list[[i]],
+                              fun=function(r1, r2){return(r1+r2)})
+}
+
+grace_2015_total_points <- rasterToPoints(grace_2015_total)
+for (i in 1:939) {
+  grace_2015_total_points[i,3] <- grace_2015_total_points[i,3] * area[i]
+} 
+
+
+## 2016
+grace_2016_index <- ls(pattern = "cg2016.*")
+grace_2016_list <- sapply(grace_2016_index, get)
+grace_2016_total<- overlay(cg201601,
+                           cg201601,
+                           fun=function(r1, r2){return(r1-r2)})
+for (i in 1:12) {
+  grace_2016_total <- overlay(grace_2016_total,
+                              grace_2016_list[[i]],
+                              fun=function(r1, r2){return(r1+r2)})
+}
+
+grace_2016_total_points <- rasterToPoints(grace_2016_total)
+for (i in 1:939) {
+  grace_2016_total_points[i,3] <- grace_2016_total_points[i,3] * area[i]
+} 
+
+
+## center of gravity calculation
+
+## 2003
+grace_2003_gravity_lon <- 0
+grace_2003_gravity_lat <- 0
+grace_2003_gravity_val <- 0
+grace_2003_total_points[,3] <- grace_2003_total_points[,3] + (-min(grace_2003_total_points[,3]))
+
+for (i in 1:939) {
+  grace_2003_gravity_lon <- grace_2003_gravity_lon + grace_2003_total_points[i,1] * (grace_2003_total_points[i,3] )
+  grace_2003_gravity_lat <- grace_2003_gravity_lat + grace_2003_total_points[i,2] * (grace_2003_total_points[i,3] )
+  grace_2003_gravity_val <- grace_2003_gravity_val + (grace_2003_total_points[i,3] )
+}
+
+grace_2003_gravity_lon <- grace_2003_gravity_lon / grace_2003_gravity_val
+grace_2003_gravity_lat <- grace_2003_gravity_lat / grace_2003_gravity_val
+
+grace_gravity_loc_2003 <- c(grace_2003_gravity_lon,grace_2003_gravity_lat)
+
+## 2004
+grace_2004_gravity_lon <- 0
+grace_2004_gravity_lat <- 0
+grace_2004_gravity_val <- 0
+grace_2004_total_points[,3] <- grace_2004_total_points[,3] + (-min(grace_2004_total_points[,3]))
+
+for (i in 1:939) {
+  grace_2004_gravity_lon <- grace_2004_gravity_lon + grace_2004_total_points[i,1] * (grace_2004_total_points[i,3] )
+  grace_2004_gravity_lat <- grace_2004_gravity_lat + grace_2004_total_points[i,2] * (grace_2004_total_points[i,3] )
+  grace_2004_gravity_val <- grace_2004_gravity_val + (grace_2004_total_points[i,3] )
+}
+
+grace_2004_gravity_lon <- grace_2004_gravity_lon / grace_2004_gravity_val
+grace_2004_gravity_lat <- grace_2004_gravity_lat / grace_2004_gravity_val
+
+grace_gravity_loc_2004 <- c(grace_2004_gravity_lon,grace_2004_gravity_lat)
+
+## 2005
+grace_2005_gravity_lon <- 0
+grace_2005_gravity_lat <- 0
+grace_2005_gravity_val <- 0
+grace_2005_total_points[,3] <- grace_2005_total_points[,3] + (-min(grace_2005_total_points[,3]))
+
+for (i in 1:939) {
+  grace_2005_gravity_lon <- grace_2005_gravity_lon + grace_2005_total_points[i,1] * (grace_2005_total_points[i,3] )
+  grace_2005_gravity_lat <- grace_2005_gravity_lat + grace_2005_total_points[i,2] * (grace_2005_total_points[i,3] )
+  grace_2005_gravity_val <- grace_2005_gravity_val + (grace_2005_total_points[i,3] )
+}
+
+grace_2005_gravity_lon <- grace_2005_gravity_lon / grace_2005_gravity_val
+grace_2005_gravity_lat <- grace_2005_gravity_lat / grace_2005_gravity_val
+
+grace_gravity_loc_2005 <- c(grace_2005_gravity_lon,grace_2005_gravity_lat)
+
+## 2006
+grace_2006_gravity_lon <- 0
+grace_2006_gravity_lat <- 0
+grace_2006_gravity_val <- 0
+grace_2006_total_points[,3] <- grace_2006_total_points[,3] + (-min(grace_2006_total_points[,3]))
+
+for (i in 1:939) {
+  grace_2006_gravity_lon <- grace_2006_gravity_lon + grace_2006_total_points[i,1] * (grace_2006_total_points[i,3] )
+  grace_2006_gravity_lat <- grace_2006_gravity_lat + grace_2006_total_points[i,2] * (grace_2006_total_points[i,3] )
+  grace_2006_gravity_val <- grace_2006_gravity_val + (grace_2006_total_points[i,3] )
+}
+
+grace_2006_gravity_lon <- grace_2006_gravity_lon / grace_2006_gravity_val
+grace_2006_gravity_lat <- grace_2006_gravity_lat / grace_2006_gravity_val
+
+grace_gravity_loc_2006 <- c(grace_2006_gravity_lon,grace_2006_gravity_lat)
+
+## 2007
+grace_2007_gravity_lon <- 0
+grace_2007_gravity_lat <- 0
+grace_2007_gravity_val <- 0
+grace_2007_total_points[,3] <- grace_2007_total_points[,3] + (-min(grace_2007_total_points[,3]))
+
+for (i in 1:939) {
+  grace_2007_gravity_lon <- grace_2007_gravity_lon + grace_2007_total_points[i,1] * (grace_2007_total_points[i,3] )
+  grace_2007_gravity_lat <- grace_2007_gravity_lat + grace_2007_total_points[i,2] * (grace_2007_total_points[i,3] )
+  grace_2007_gravity_val <- grace_2007_gravity_val + (grace_2007_total_points[i,3] )
+}
+
+grace_2007_gravity_lon <- grace_2007_gravity_lon / grace_2007_gravity_val
+grace_2007_gravity_lat <- grace_2007_gravity_lat / grace_2007_gravity_val
+
+grace_gravity_loc_2007 <- c(grace_2007_gravity_lon,grace_2007_gravity_lat)
+
+## 2008
+grace_2008_gravity_lon <- 0
+grace_2008_gravity_lat <- 0
+grace_2008_gravity_val <- 0
+grace_2008_total_points[,3] <- grace_2008_total_points[,3] + (-min(grace_2008_total_points[,3]))
+
+for (i in 1:939) {
+  grace_2008_gravity_lon <- grace_2008_gravity_lon + grace_2008_total_points[i,1] * (grace_2008_total_points[i,3] )
+  grace_2008_gravity_lat <- grace_2008_gravity_lat + grace_2008_total_points[i,2] * (grace_2008_total_points[i,3] )
+  grace_2008_gravity_val <- grace_2008_gravity_val + (grace_2008_total_points[i,3] )
+}
+
+grace_2008_gravity_lon <- grace_2008_gravity_lon / grace_2008_gravity_val
+grace_2008_gravity_lat <- grace_2008_gravity_lat / grace_2008_gravity_val
+
+grace_gravity_loc_2008 <- c(grace_2008_gravity_lon,grace_2008_gravity_lat)
+
+## 2009
+grace_2009_gravity_lon <- 0
+grace_2009_gravity_lat <- 0
+grace_2009_gravity_val <- 0
+grace_2009_total_points[,3] <- grace_2009_total_points[,3] + (-min(grace_2009_total_points[,3]))
+
+for (i in 1:939) {
+  grace_2009_gravity_lon <- grace_2009_gravity_lon + grace_2009_total_points[i,1] * (grace_2009_total_points[i,3] )
+  grace_2009_gravity_lat <- grace_2009_gravity_lat + grace_2009_total_points[i,2] * (grace_2009_total_points[i,3] )
+  grace_2009_gravity_val <- grace_2009_gravity_val + (grace_2009_total_points[i,3] )
+}
+
+grace_2009_gravity_lon <- grace_2009_gravity_lon / grace_2009_gravity_val
+grace_2009_gravity_lat <- grace_2009_gravity_lat / grace_2009_gravity_val
+
+grace_gravity_loc_2009 <- c(grace_2009_gravity_lon,grace_2009_gravity_lat)
+
+## 2010
+grace_2010_gravity_lon <- 0
+grace_2010_gravity_lat <- 0
+grace_2010_gravity_val <- 0
+grace_2010_total_points[,3] <- grace_2010_total_points[,3] + (-min(grace_2010_total_points[,3]))
+
+for (i in 1:939) {
+  grace_2010_gravity_lon <- grace_2010_gravity_lon + grace_2010_total_points[i,1] * (grace_2010_total_points[i,3] )
+  grace_2010_gravity_lat <- grace_2010_gravity_lat + grace_2010_total_points[i,2] * (grace_2010_total_points[i,3] )
+  grace_2010_gravity_val <- grace_2010_gravity_val + (grace_2010_total_points[i,3] )
+}
+
+grace_2010_gravity_lon <- grace_2010_gravity_lon / grace_2010_gravity_val
+grace_2010_gravity_lat <- grace_2010_gravity_lat / grace_2010_gravity_val
+
+grace_gravity_loc_2010 <- c(grace_2010_gravity_lon,grace_2010_gravity_lat)
+
+## 2011
+grace_2011_gravity_lon <- 0
+grace_2011_gravity_lat <- 0
+grace_2011_gravity_val <- 0
+grace_2011_total_points[,3] <- grace_2011_total_points[,3] + (-min(grace_2011_total_points[,3]))
+
+for (i in 1:939) {
+  grace_2011_gravity_lon <- grace_2011_gravity_lon + grace_2011_total_points[i,1] * (grace_2011_total_points[i,3] )
+  grace_2011_gravity_lat <- grace_2011_gravity_lat + grace_2011_total_points[i,2] * (grace_2011_total_points[i,3] )
+  grace_2011_gravity_val <- grace_2011_gravity_val + (grace_2011_total_points[i,3] )
+}
+
+grace_2011_gravity_lon <- grace_2011_gravity_lon / grace_2011_gravity_val
+grace_2011_gravity_lat <- grace_2011_gravity_lat / grace_2011_gravity_val
+
+grace_gravity_loc_2011 <- c(grace_2011_gravity_lon,grace_2011_gravity_lat)
+
+## 2012
+grace_2012_gravity_lon <- 0
+grace_2012_gravity_lat <- 0
+grace_2012_gravity_val <- 0
+grace_2012_total_points[,3] <- grace_2012_total_points[,3] + (-min(grace_2012_total_points[,3]))
+
+for (i in 1:939) {
+  grace_2012_gravity_lon <- grace_2012_gravity_lon + grace_2012_total_points[i,1] * (grace_2012_total_points[i,3] )
+  grace_2012_gravity_lat <- grace_2012_gravity_lat + grace_2012_total_points[i,2] * (grace_2012_total_points[i,3] )
+  grace_2012_gravity_val <- grace_2012_gravity_val + (grace_2012_total_points[i,3] )
+}
+
+grace_2012_gravity_lon <- grace_2012_gravity_lon / grace_2012_gravity_val
+grace_2012_gravity_lat <- grace_2012_gravity_lat / grace_2012_gravity_val
+
+grace_gravity_loc_2012 <- c(grace_2012_gravity_lon,grace_2012_gravity_lat)
+
+## 2013
+grace_2013_gravity_lon <- 0
+grace_2013_gravity_lat <- 0
+grace_2013_gravity_val <- 0
+grace_2013_total_points[,3] <- grace_2013_total_points[,3] + (-min(grace_2013_total_points[,3]))
+
+for (i in 1:939) {
+  grace_2013_gravity_lon <- grace_2013_gravity_lon + grace_2013_total_points[i,1] * (grace_2013_total_points[i,3] )
+  grace_2013_gravity_lat <- grace_2013_gravity_lat + grace_2013_total_points[i,2] * (grace_2013_total_points[i,3] )
+  grace_2013_gravity_val <- grace_2013_gravity_val + (grace_2013_total_points[i,3] )
+}
+
+grace_2013_gravity_lon <- grace_2013_gravity_lon / grace_2013_gravity_val
+grace_2013_gravity_lat <- grace_2013_gravity_lat / grace_2013_gravity_val
+
+grace_gravity_loc_2013 <- c(grace_2013_gravity_lon,grace_2013_gravity_lat)
+
+## 2014
+grace_2014_gravity_lon <- 0
+grace_2014_gravity_lat <- 0
+grace_2014_gravity_val <- 0
+grace_2014_total_points[,3] <- grace_2014_total_points[,3] + (-min(grace_2014_total_points[,3]))
+
+for (i in 1:939) {
+  grace_2014_gravity_lon <- grace_2014_gravity_lon + grace_2014_total_points[i,1] * (grace_2014_total_points[i,3] )
+  grace_2014_gravity_lat <- grace_2014_gravity_lat + grace_2014_total_points[i,2] * (grace_2014_total_points[i,3] )
+  grace_2014_gravity_val <- grace_2014_gravity_val + (grace_2014_total_points[i,3] )
+}
+
+grace_2014_gravity_lon <- grace_2014_gravity_lon / grace_2014_gravity_val
+grace_2014_gravity_lat <- grace_2014_gravity_lat / grace_2014_gravity_val
+
+grace_gravity_loc_2014 <- c(grace_2014_gravity_lon,grace_2014_gravity_lat)
+
+## 2015
+grace_2015_gravity_lon <- 0
+grace_2015_gravity_lat <- 0
+grace_2015_gravity_val <- 0
+grace_2015_total_points[,3] <- grace_2015_total_points[,3] + (-min(grace_2015_total_points[,3]))
+
+for (i in 1:939) {
+  grace_2015_gravity_lon <- grace_2015_gravity_lon + grace_2015_total_points[i,1] * (grace_2015_total_points[i,3] )
+  grace_2015_gravity_lat <- grace_2015_gravity_lat + grace_2015_total_points[i,2] * (grace_2015_total_points[i,3] )
+  grace_2015_gravity_val <- grace_2015_gravity_val + (grace_2015_total_points[i,3] )
+}
+
+grace_2015_gravity_lon <- grace_2015_gravity_lon / grace_2015_gravity_val
+grace_2015_gravity_lat <- grace_2015_gravity_lat / grace_2015_gravity_val
+
+grace_gravity_loc_2015 <- c(grace_2015_gravity_lon,grace_2015_gravity_lat)
+
+## 2016
+grace_2016_gravity_lon <- 0
+grace_2016_gravity_lat <- 0
+grace_2016_gravity_val <- 0
+grace_2016_total_points[,3] <- grace_2016_total_points[,3] + (-min(grace_2016_total_points[,3]))
+
+for (i in 1:939) {
+  grace_2016_gravity_lon <- grace_2016_gravity_lon + grace_2016_total_points[i,1] * (grace_2016_total_points[i,3] )
+  grace_2016_gravity_lat <- grace_2016_gravity_lat + grace_2016_total_points[i,2] * (grace_2016_total_points[i,3] )
+  grace_2016_gravity_val <- grace_2016_gravity_val + (grace_2016_total_points[i,3] )
+}
+
+grace_2016_gravity_lon <- grace_2016_gravity_lon / grace_2016_gravity_val
+grace_2016_gravity_lat <- grace_2016_gravity_lat / grace_2016_gravity_val
+
+grace_gravity_loc_2016 <- c(grace_2016_gravity_lon,grace_2016_gravity_lat)
+
+##  plot the trajectory map
+
+gravity_point_index <- ls(pattern = "grace_gravity_loc_.*")
+gravity_point_index <- gravity_point_index[1:14]
+grace_gravity_loc_list <- sapply(gravity_point_index, get)
+
+grace_gravity_loc_list <- t(grace_gravity_loc_list)
+colnames(grace_gravity_loc_list) <- c("long","lat")
+rownames(grace_gravity_loc_list) <- c(1:14)
+t_plot <- grace_gravity_loc_list
+
+ggplot(data = as.data.frame(t_plot),aes(long,lat)) +
+  geom_path() +
+  geom_point() +
+  geom_text(aes(label=c(2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016)),
+            position=position_jitter(width=0.12,height = 0.1))
+
+
+
+
+
+
+
+
+
+
+## gravity center of cropland
+
+
+# read the land cover data
+setwd("D:/ndvidata/cumNDVI/cumNDVI_chn_tif")
+lc_data <- sapply(Sys.glob("cumndvi*.tif"), raster);
+
+for (i in 1:14 ) {
+  assign(paste0('lc',i,sep=''),lc_data[[i]])
+};
+
+
+lc_points_2003 <- rasterToPoints(lc1)
+lc_points_2004 <- rasterToPoints(lc2)
+lc_points_2005 <- rasterToPoints(lc3)
+lc_points_2006 <- rasterToPoints(lc4)
+lc_points_2007 <- rasterToPoints(lc5)
+lc_points_2008 <- rasterToPoints(lc6)
+lc_points_2009 <- rasterToPoints(lc7)
+lc_points_2010 <- rasterToPoints(lc8)
+lc_points_2011 <- rasterToPoints(lc9)
+lc_points_2012 <- rasterToPoints(lc10)
+lc_points_2013 <- rasterToPoints(lc11)
+lc_points_2014 <- rasterToPoints(lc12)
+lc_points_2015 <- rasterToPoints(lc13)
+lc_points_2016 <- rasterToPoints(lc14)
+
+# lon and lat calculation
+
+lc_gravity_lon_2003 <- mean(lc_points_2003[,1])
+lc_gravity_lat_2003 <- mean(lc_points_2003[,2])
+lc_gravity_loc_2003 <- c(lc_gravity_lon_2003, lc_gravity_lat_2003)
+
+
+lc_gravity_lon_2004 <- mean(lc_points_2004[,1])
+lc_gravity_lat_2004 <- mean(lc_points_2004[,2])
+lc_gravity_loc_2004 <- c(lc_gravity_lon_2004, lc_gravity_lat_2004)
+
+lc_gravity_lon_2005 <- mean(lc_points_2005[,1])
+lc_gravity_lat_2005 <- mean(lc_points_2005[,2])
+lc_gravity_loc_2005 <- c(lc_gravity_lon_2005, lc_gravity_lat_2005)
+
+lc_gravity_lon_2006 <- mean(lc_points_2006[,1])
+lc_gravity_lat_2006 <- mean(lc_points_2006[,2])
+lc_gravity_loc_2006 <- c(lc_gravity_lon_2006, lc_gravity_lat_2006)
+
+lc_gravity_lon_2007 <- mean(lc_points_2007[,1])
+lc_gravity_lat_2007 <- mean(lc_points_2007[,2])
+lc_gravity_loc_2007 <- c(lc_gravity_lon_2007, lc_gravity_lat_2007)
+
+lc_gravity_lon_2008 <- mean(lc_points_2008[,1])
+lc_gravity_lat_2008 <- mean(lc_points_2008[,2])
+lc_gravity_loc_2008 <- c(lc_gravity_lon_2008, lc_gravity_lat_2008)
+
+lc_gravity_lon_2009 <- mean(lc_points_2009[,1])
+lc_gravity_lat_2009 <- mean(lc_points_2009[,2])
+lc_gravity_loc_2009 <- c(lc_gravity_lon_2009, lc_gravity_lat_2009)
+
+lc_gravity_lon_2010 <- mean(lc_points_2010[,1])
+lc_gravity_lat_2010 <- mean(lc_points_2010[,2])
+lc_gravity_loc_2010 <- c(lc_gravity_lon_2010, lc_gravity_lat_2010)
+
+lc_gravity_lon_2011 <- mean(lc_points_2011[,1])
+lc_gravity_lat_2011 <- mean(lc_points_2011[,2])
+lc_gravity_loc_2011 <- c(lc_gravity_lon_2011, lc_gravity_lat_2011)
+
+
+lc_gravity_lon_2012 <- mean(lc_points_2012[,1])
+lc_gravity_lat_2012 <- mean(lc_points_2012[,2])
+lc_gravity_loc_2012 <- c(lc_gravity_lon_2012, lc_gravity_lat_2012)
+
+
+lc_gravity_lon_2013 <- mean(lc_points_2013[,1])
+lc_gravity_lat_2013 <- mean(lc_points_2013[,2])
+lc_gravity_loc_2013 <- c(lc_gravity_lon_2013, lc_gravity_lat_2013)
+
+
+lc_gravity_lon_2014 <- mean(lc_points_2014[,1])
+lc_gravity_lat_2014 <- mean(lc_points_2014[,2])
+lc_gravity_loc_2014 <- c(lc_gravity_lon_2014, lc_gravity_lat_2014)
+
+
+lc_gravity_lon_2015 <- mean(lc_points_2015[,1])
+lc_gravity_lat_2015 <- mean(lc_points_2015[,2])
+lc_gravity_loc_2015 <- c(lc_gravity_lon_2015, lc_gravity_lat_2015)
+
+lc_gravity_lon_2016 <- mean(lc_points_2016[,1])
+lc_gravity_lat_2016 <- mean(lc_points_2016[,2])
+lc_gravity_loc_2016 <- c(lc_gravity_lon_2016, lc_gravity_lat_2016)
+
+##  plot the trajectory map of land cover
+lc_gravity_loc_list <- rbind(lc_gravity_loc_2003,
+                             lc_gravity_loc_2004,
+                             lc_gravity_loc_2005,
+                             lc_gravity_loc_2006,
+                             lc_gravity_loc_2007,
+                             lc_gravity_loc_2008,
+                             lc_gravity_loc_2009,
+                             lc_gravity_loc_2010,
+                             lc_gravity_loc_2011,
+                             lc_gravity_loc_2012,
+                             lc_gravity_loc_2013,
+                             lc_gravity_loc_2014,
+                             lc_gravity_loc_2015,
+                             lc_gravity_loc_2016)
+
+
+colnames(lc_gravity_loc_list) <- c("long","lat")
+rownames(lc_gravity_loc_list) <- c(1:13)
+lc_t_plot <- lc_gravity_loc_list
+
+ggplot(data = as.data.frame(lc_t_plot),aes(long,lat)) +
+  geom_path() +
+  geom_point() +
+  geom_text(aes(label=2003:2016),position=position_jitter(width=0.004,height =  0.009))
+
+
+
+
+
+
+## grain product gravity center anaylsis
+year_date <- as.data.frame(c(2003:2016))
+grain_product <- cbind(grain_product_a$total,
+                       grain_product_b$total,
+                       grain_product_cd$total,
+                       grain_product_e$total,
+                       grain_product_hf$total,
+                       grain_product_g$total,
+                       grain_product_i$total,
+                       year_date)
+colnames(grain_product) <- c("a","b","cd","e","hf","g","i","date")
+
+ggplot(data = grain_product,aes(x = date)) +
+  geom_line(aes(y = a)) +
+  geom_line(aes( y= b)) +
+  geom_line(aes( y= cd)) +
+  geom_line(aes( y= e)) +
+  geom_line(aes( y= hf)) +
+  geom_line(aes( y= g)) +
+  geom_line(aes( y= i))
+
+
+
+grain_product_table <- read.csv('D:/ndvidata/centorid/grain_product.csv')
+grain_product_centroid <- grain_product_table[,c('CODE','x','y')]
+
+# 2003
+grain_product_2003 <- grain_product[1,1:7]
+grain_product_2003 <- t(grain_product_2003)
+grain_product_2003 <- cbind('')
+rownames(grain_product_2003) <- c('a', 'b', 'cd', 'e', 'hf', 'g', 'i')
+
