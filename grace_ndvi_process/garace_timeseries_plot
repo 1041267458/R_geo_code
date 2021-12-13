@@ -1,0 +1,755 @@
+library(mosaic)
+area_of_pixel <- function(center_lat){
+  a = 6378137 # unit:meters
+  b = 6356752.3142 # unit:meters
+  c = sqrt(1 - (b/a)^2)
+  
+  zm_a <- 1 - c*sin(deg2rad(center_lat+1/2))
+  zp_a <- 1 + c*sin(deg2rad(center_lat+1/2))
+  area_a <- 
+    pi * b^2 * (
+      log(zp_a/zm_a) / (2*c) +
+        sin(deg2rad(center_lat+1/2)) / (zp_a*zm_a))
+  
+  zm_b <- 1 - c*sin(deg2rad(center_lat-1/2))
+  zp_b <- 1 + c*sin(deg2rad(center_lat-1/2))
+  area_b <- 
+    pi * b^2 * (
+      log(zp_b/zm_b) / (2*c) +
+        sin(deg2rad(center_lat-1/2)) / (zp_b*zm_b))
+  
+  return(1 / 360 * (area_a - area_b))
+}
+
+
+
+
+
+
+
+
+setwd("D:/ndvidata/grace_chn/i_tif")
+grace_data <- sapply(Sys.glob("icg*.tif"), raster);
+
+## create an empty matrix to store the mean of grace
+grace_mean <- grace_data[[1]][[1]] - grace_data[[1]][[1]];
+
+## calculate the mean of grace
+for (i in 1:151 ) {
+  assign(paste0('cg',i,sep=''),grace_data[[i]][[1]])
+};
+
+grace_mean <- matrix(nrow = 151, ncol = 1);
+
+for (i in 1:151 ) {
+  grace_points <-rasterToPoints(grace_data[[i]][[1]])
+  grace_mean[i] = mean(grace_points[,3])
+};
+
+## read the lon and lat of raster data
+name_grace_point <- c(1:156);
+name_grace_point <- as.character(name_grace_point)
+grace_value <- list()
+
+
+## find and fill the missing data
+
+date_index <- read.csv('D:/ndvidata/grainproduct/index_date.csv',header = FALSE);
+date_index[1,1] <- 200301
+colnames(date_index) <- c("date","index")
+date_index_yearmon <- transform(date_index, yearmon = as.yearmon(as.character(date), "%Y%m"));
+
+
+d <- as.Date(date_index_yearmon$yearmon)
+date_range <- seq.Date(min(d),max(d),by = "month")
+missing_date <- date_range[!date_range %in% d]
+missing_date <- format(missing_date, "%Y%m")
+missing_date <- missing_date[1:17]
+missing_date
+
+year <- as.numeric(format(date_index_yearmon$yearmon,'%Y'));
+month <- as.numeric(format(date_index_yearmon$yearmon,'%m'));
+date_index_yearmon <- cbind(date_index_yearmon,year,month);
+
+month_name <- c(month.abb)
+for (i in 1:12) {
+  nam <-paste(month_name[i],"_index",sep = "")
+  assign(nam,date_index_yearmon %>% filter(month == i & year != 2017 ))
+}
+
+
+## calculating grace mean cell by cell
+grace_jan <- stack(cg1,
+                   cg12,
+                   cg24,
+                   cg36,
+                   cg48,
+                   cg60,
+                   cg72,
+                   cg84,
+                   cg106,
+                   cg116,
+                   cg125,
+                   cg134,
+                   cg143
+)
+
+
+grace_feb <- stack(
+  cg2,
+  cg13,
+  cg25,
+  cg37,
+  cg49,
+  cg61,
+  cg73,
+  cg85,
+  cg96,
+  cg107,
+  cg117,
+  cg135,
+  cg144
+  
+)
+
+grace_mar <- stack(cg3,
+                   cg14,
+                   cg26,
+                   cg38,
+                   cg50,
+                   cg62,
+                   cg74,
+                   cg86,
+                   cg97,
+                   cg108,
+                   cg126,
+                   cg136,
+                   cg145
+)
+grace_apr <- stack(cg4,
+                   cg15,
+                   cg27,
+                   cg39,
+                   cg51,
+                   cg63,
+                   cg75,
+                   cg87,
+                   cg98,
+                   cg109,
+                   cg118,
+                   cg127,
+                   cg137
+)
+grace_may <- stack(cg5,
+                   cg16,
+                   cg28,
+                   cg40,
+                   cg52,
+                   cg64,
+                   cg76,
+                   cg88,
+                   cg99,
+                   cg119,
+                   cg128,
+                   cg138,
+                   cg146
+)
+grace_jun <- stack(cg17,
+                   cg29,
+                   cg41,
+                   cg53,
+                   cg65,
+                   cg77,
+                   cg89,
+                   cg110,
+                   cg120,
+                   cg129,
+                   cg147
+)
+grace_jul <- stack(cg6,
+                   cg18,
+                   cg30,
+                   cg42,
+                   cg54,
+                   cg66,
+                   cg78,
+                   cg90,
+                   cg100,
+                   cg111,
+                   cg121,
+                   cg139,
+                   cg148
+                   
+)
+grace_aug <- stack(cg7,
+                   cg19,
+                   cg31,
+                   cg43,
+                   cg55,
+                   cg67,
+                   cg79,
+                   cg91,
+                   cg101,
+                   cg112,
+                   cg130,
+                   cg140,
+                   cg149
+)
+grace_sep <- stack(cg8,
+                   cg20,
+                   cg32,
+                   cg44,
+                   cg56,
+                   cg68,
+                   cg80,
+                   cg92,
+                   cg102,
+                   cg113,
+                   cg122,
+                   cg131,
+                   cg141
+                   
+)
+grace_oct <- stack(cg9,
+                   cg21,
+                   cg33,
+                   cg45,
+                   cg57,
+                   cg69,
+                   cg81,
+                   cg93,
+                   cg103,
+                   cg123,
+                   cg132
+)
+grace_nov <- stack(cg10,
+                   cg22,
+                   cg34,
+                   cg46,
+                   cg58,
+                   cg70,
+                   cg82,
+                   cg94,
+                   cg104,
+                   cg114,
+                   cg124,
+                   cg133,
+                   cg150
+)
+grace_dec <- stack(cg11,
+                   cg23,
+                   cg35,
+                   cg47,
+                   cg59,
+                   cg71,
+                   cg83,
+                   cg95,
+                   cg105,
+                   cg115,
+                   cg142,
+                   cg151
+                   
+)
+
+
+## Jan
+grace_jan_sum <- grace_jan[[1]] - grace_jan[[1]]
+
+for (i in 1:length(grace_jan[1])) {
+  grace_jan_sum <- grace_jan_sum + grace_jan[[i]]
+}
+
+grace_jan_mean <- grace_jan_sum / length(grace_jan[[1]])
+
+## Feb
+grace_feb_sum <- grace_jan[[1]] - grace_jan[[1]]
+
+for (i in 1:length(grace_feb[1])) {
+  grace_feb_sum <- grace_feb_sum + grace_feb[[i]]
+}
+
+grace_feb_mean <- grace_feb_sum / length(grace_feb[[1]])
+
+## Mar
+grace_mar_sum <- grace_jan[[1]] - grace_jan[[1]]
+
+for (i in 1:length(grace_mar[1])) {
+  grace_mar_sum <- grace_mar_sum + grace_mar[[i]]
+}
+
+grace_mar_mean <- grace_mar_sum / length(grace_mar[[1]])
+
+## Apr
+grace_apr_sum <- grace_jan[[1]] - grace_jan[[1]]
+
+for (i in 1:length(grace_apr[1])) {
+  grace_apr_sum <- grace_apr_sum + grace_apr[[i]]
+}
+
+grace_apr_mean <- grace_apr_sum / length(grace_apr[[1]])
+
+## May
+grace_may_sum <- grace_jan[[1]] - grace_jan[[1]]
+
+for (i in 1:length(grace_may[1])) {
+  grace_may_sum <- grace_may_sum + grace_may[[i]]
+}
+
+grace_may_mean <- grace_may_sum / length(grace_may[[1]])
+
+## Jun
+grace_jun_sum <- grace_jan[[1]] - grace_jan[[1]]
+
+for (i in 1:length(grace_jun[1])) {
+  grace_jun_sum <- grace_jun_sum + grace_jun[[i]]
+}
+
+grace_jun_mean <- grace_jun_sum / length(grace_jun[[1]])
+
+## Jul
+grace_jul_sum <- grace_jan[[1]] - grace_jan[[1]]
+
+for (i in 1:length(grace_jul[1])) {
+  grace_jul_sum <- grace_jul_sum + grace_jul[[i]]
+}
+
+grace_jul_mean <- grace_jul_sum / length(grace_jul[[1]])
+
+## Aug
+grace_aug_sum <- grace_jan[[1]] - grace_jan[[1]]
+
+for (i in 1:length(grace_aug[1])) {
+  grace_aug_sum <- grace_aug_sum + grace_aug[[i]]
+}
+
+grace_aug_mean <- grace_aug_sum / length(grace_aug[[1]])
+
+## Sep
+grace_sep_sum <- grace_jan[[1]] - grace_jan[[1]]
+
+for (i in 1:length(grace_sep[1])) {
+  grace_sep_sum <- grace_sep_sum + grace_sep[[i]]
+}
+
+grace_sep_mean <- grace_sep_sum / length(grace_sep[[1]])
+
+## Oct
+grace_oct_sum <- grace_jan[[1]] - grace_jan[[1]]
+
+for (i in 1:length(grace_oct[1])) {
+  grace_oct_sum <- grace_oct_sum + grace_oct[[i]]
+}
+
+grace_oct_mean <- grace_oct_sum / length(grace_oct[[1]])
+
+## Nov
+grace_nov_sum <- grace_jan[[1]] - grace_jan[[1]]
+
+for (i in 1:length(grace_nov[1])) {
+  grace_nov_sum <- grace_nov_sum + grace_nov[[i]]
+}
+
+grace_nov_mean <- grace_nov_sum / length(grace_nov[[1]])
+
+## Dec
+grace_dec_sum <- grace_jan[[1]] - grace_jan[[1]]
+
+for (i in 1:length(grace_dec[1])) {
+  grace_dec_sum <- grace_dec_sum + grace_dec[[i]]
+}
+
+grace_dec_mean <- grace_dec_sum / length(grace_dec[[1]])
+
+
+## fill the missing date
+index <- read.csv('D:/ndvidata/grainproduct/index.csv',header = F)
+for (i in 1:151) {
+  nm <- paste0("cg",index$V5[i],sep = '')
+  assign(nm,get(paste("cg",i,sep = '')))
+}
+
+cg200306 <- grace_jun_mean;
+cg201101 <- grace_jan_mean;
+cg201106 <- grace_jun_mean;
+cg201205 <- grace_may_mean;
+cg201210 <- grace_oct_mean;
+cg201303 <- grace_mar_mean;
+cg201308 <- grace_aug_mean;
+cg201312 <- grace_dec_mean;
+cg201402 <- grace_feb_mean;
+cg201407 <- grace_jul_mean;
+cg201412 <- grace_dec_mean;
+cg201506 <- grace_jun_mean;
+cg201510 <- grace_oct_mean;
+cg201511 <- grace_nov_mean;
+cg201604 <- grace_apr_mean;
+cg201609 <- grace_sep_mean;
+cg201610 <- grace_oct_mean;
+
+area <- area_of_pixel(grace_points[,2])
+
+## 2003
+grace_2003_index <- ls(pattern = "cg2003.*")
+grace_2003_list <- sapply(grace_2003_index, get)
+grace_2003_total<- overlay(cg200301,
+                           cg200301,
+                           fun=function(r1, r2){return(r1-r2)})
+for (i in 1:12) {
+  grace_2003_total <- overlay(grace_2003_total,
+                              grace_2003_list[[i]],
+                              fun=function(r1, r2){return(r1+r2)})
+}
+grace_2003_total_points <- rasterToPoints(grace_2003_total)
+for (i in 1:939) {
+  grace_2003_total_points[i,3] <- grace_2003_total_points[i,3] * area[i]
+} 
+
+
+## 2004
+grace_2004_index <- ls(pattern = "cg2004.*")
+grace_2004_list <- sapply(grace_2004_index, get)
+grace_2004_total<- overlay(cg200401,
+                           cg200401,
+                           fun=function(r1, r2){return(r1-r2)})
+for (i in 1:12) {
+  grace_2004_total <- overlay(grace_2004_total,
+                              grace_2004_list[[i]],
+                              fun=function(r1, r2){return(r1+r2)})
+}
+
+grace_2004_total_points <- rasterToPoints(grace_2004_total)
+for (i in 1:939) {
+  grace_2004_total_points[i,3] <- grace_2004_total_points[i,3] * area[i]
+} 
+
+
+## 2005
+grace_2005_index <- ls(pattern = "cg2005.*")
+grace_2005_list <- sapply(grace_2005_index, get)
+grace_2005_total<- overlay(cg200501,
+                           cg200501,
+                           fun=function(r1, r2){return(r1-r2)})
+for (i in 1:12) {
+  grace_2005_total <- overlay(grace_2005_total,
+                              grace_2005_list[[i]],
+                              fun=function(r1, r2){return(r1+r2)})
+}
+
+grace_2005_total_points <- rasterToPoints(grace_2005_total)
+for (i in 1:939) {
+  grace_2005_total_points[i,3] <- grace_2005_total_points[i,3] * area[i]
+} 
+
+
+## 2006
+grace_2006_index <- ls(pattern = "cg2006.*")
+grace_2006_list <- sapply(grace_2006_index, get)
+grace_2006_total<- overlay(cg200601,
+                           cg200601,
+                           fun=function(r1, r2){return(r1-r2)})
+for (i in 1:12) {
+  grace_2006_total <- overlay(grace_2006_total,
+                              grace_2006_list[[i]],
+                              fun=function(r1, r2){return(r1+r2)})
+}
+
+grace_2006_total_points <- rasterToPoints(grace_2006_total)
+for (i in 1:939) {
+  grace_2006_total_points[i,3] <- grace_2006_total_points[i,3] * area[i]
+} 
+
+
+## 2007
+grace_2007_index <- ls(pattern = "cg2007.*")
+grace_2007_list <- sapply(grace_2007_index, get)
+grace_2007_total<- overlay(cg200701,
+                           cg200701,
+                           fun=function(r1, r2){return(r1-r2)})
+for (i in 1:12) {
+  grace_2007_total <- overlay(grace_2007_total,
+                              grace_2007_list[[i]],
+                              fun=function(r1, r2){return(r1+r2)})
+}
+
+grace_2007_total_points <- rasterToPoints(grace_2007_total)
+for (i in 1:939) {
+  grace_2007_total_points[i,3] <- grace_2007_total_points[i,3] * area[i]
+} 
+
+
+## 2008
+grace_2008_index <- ls(pattern = "cg2008.*")
+grace_2008_list <- sapply(grace_2008_index, get)
+grace_2008_total<- overlay(cg200801,
+                           cg200801,
+                           fun=function(r1, r2){return(r1-r2)})
+for (i in 1:12) {
+  grace_2008_total <- overlay(grace_2008_total,
+                              grace_2008_list[[i]],
+                              fun=function(r1, r2){return(r1+r2)})
+}
+
+grace_2008_total_points <- rasterToPoints(grace_2008_total)
+for (i in 1:939) {
+  grace_2008_total_points[i,3] <- grace_2008_total_points[i,3] * area[i]
+} 
+
+
+## 2009
+grace_2009_index <- ls(pattern = "cg2009.*")
+grace_2009_list <- sapply(grace_2009_index, get)
+grace_2009_total<- overlay(cg200901,
+                           cg200901,
+                           fun=function(r1, r2){return(r1-r2)})
+for (i in 1:12) {
+  grace_2009_total <- overlay(grace_2009_total,
+                              grace_2009_list[[i]],
+                              fun=function(r1, r2){return(r1+r2)})
+}
+
+grace_2009_total_points <- rasterToPoints(grace_2009_total)
+for (i in 1:939) {
+  grace_2009_total_points[i,3] <- grace_2009_total_points[i,3] * area[i]
+} 
+
+
+## 2010
+grace_2010_index <- ls(pattern = "cg2010.*")
+grace_2010_list <- sapply(grace_2010_index, get)
+grace_2010_total<- overlay(cg201001,
+                           cg201001,
+                           fun=function(r1, r2){return(r1-r2)})
+for (i in 1:12) {
+  grace_2010_total <- overlay(grace_2010_total,
+                              grace_2010_list[[i]],
+                              fun=function(r1, r2){return(r1+r2)})
+}
+
+grace_2010_total_points <- rasterToPoints(grace_2010_total)
+for (i in 1:939) {
+  grace_2010_total_points[i,3] <- grace_2010_total_points[i,3] * area[i]
+} 
+
+
+## 2011
+grace_2011_index <- ls(pattern = "cg2011.*")
+grace_2011_list <- sapply(grace_2011_index, get)
+grace_2011_total<- overlay(cg201101,
+                           cg201101,
+                           fun=function(r1, r2){return(r1-r2)})
+for (i in 1:12) {
+  grace_2011_total <- overlay(grace_2011_total,
+                              grace_2011_list[[i]],
+                              fun=function(r1, r2){return(r1+r2)})
+}
+
+grace_2011_total_points <- rasterToPoints(grace_2011_total)
+for (i in 1:939) {
+  grace_2011_total_points[i,3] <- grace_2011_total_points[i,3] * area[i]
+} 
+
+
+## 2012
+grace_2012_index <- ls(pattern = "cg2012.*")
+grace_2012_list <- sapply(grace_2012_index, get)
+grace_2012_total<- overlay(cg201201,
+                           cg201201,
+                           fun=function(r1, r2){return(r1-r2)})
+for (i in 1:12) {
+  grace_2012_total <- overlay(grace_2012_total,
+                              grace_2012_list[[i]],
+                              fun=function(r1, r2){return(r1+r2)})
+}
+
+grace_2012_total_points <- rasterToPoints(grace_2012_total)
+for (i in 1:939) {
+  grace_2012_total_points[i,3] <- grace_2012_total_points[i,3] * area[i]
+} 
+
+
+## 2013
+grace_2013_index <- ls(pattern = "cg2013.*")
+grace_2013_list <- sapply(grace_2013_index, get)
+grace_2013_total<- overlay(cg201301,
+                           cg201301,
+                           fun=function(r1, r2){return(r1-r2)})
+for (i in 1:12) {
+  grace_2013_total <- overlay(grace_2013_total,
+                              grace_2013_list[[i]],
+                              fun=function(r1, r2){return(r1+r2)})
+}
+
+grace_2013_total_points <- rasterToPoints(grace_2013_total)
+for (i in 1:939) {
+  grace_2013_total_points[i,3] <- grace_2013_total_points[i,3] * area[i]
+} 
+
+
+## 2014
+grace_2014_index <- ls(pattern = "cg2014.*")
+grace_2014_list <- sapply(grace_2014_index, get)
+grace_2014_total<- overlay(cg201401,
+                           cg201401,
+                           fun=function(r1, r2){return(r1-r2)})
+for (i in 1:12) {
+  grace_2014_total <- overlay(grace_2014_total,
+                              grace_2014_list[[i]],
+                              fun=function(r1, r2){return(r1+r2)})
+}
+
+grace_2014_total_points <- rasterToPoints(grace_2014_total)
+for (i in 1:939) {
+  grace_2014_total_points[i,3] <- grace_2014_total_points[i,3] * area[i]
+} 
+
+
+## 2015
+grace_2015_index <- ls(pattern = "cg2015.*")
+grace_2015_list <- sapply(grace_2015_index, get)
+grace_2015_total<- overlay(cg201501,
+                           cg201501,
+                           fun=function(r1, r2){return(r1-r2)})
+for (i in 1:12) {
+  grace_2015_total <- overlay(grace_2015_total,
+                              grace_2015_list[[i]],
+                              fun=function(r1, r2){return(r1+r2)})
+}
+
+grace_2015_total_points <- rasterToPoints(grace_2015_total)
+for (i in 1:939) {
+  grace_2015_total_points[i,3] <- grace_2015_total_points[i,3] * area[i]
+} 
+
+
+## 2016
+grace_2016_index <- ls(pattern = "cg2016.*")
+grace_2016_list <- sapply(grace_2016_index, get)
+grace_2016_total<- overlay(cg201601,
+                           cg201601,
+                           fun=function(r1, r2){return(r1-r2)})
+for (i in 1:12) {
+  grace_2016_total <- overlay(grace_2016_total,
+                              grace_2016_list[[i]],
+                              fun=function(r1, r2){return(r1+r2)})
+}
+
+grace_2016_total_points <- rasterToPoints(grace_2016_total)
+for (i in 1:939) {
+  grace_2016_total_points[i,3] <- grace_2016_total_points[i,3] * area[i]
+} 
+
+
+grace_i <- vector(mode = "numeric")
+for (i in 1:14) {
+  tar_name <- paste("grace",i+2002,"total","points",sep = "_")
+  tar_point <- get(tar_name)
+  tar_sum <- sum(tar_point[,3])
+  grace_i[i] <- tar_sum
+}
+
+
+year_index <- c(2003:2016)
+plot_data_a <- as.data.frame(cbind(year_index,grace_a))
+colnames(plot_data_a) <- c("date","grace")
+
+plot_a <- ggplot(data = plot_data_a, aes(x=date, y=grace/1000000000)) +
+  geom_line(size=1, colour = "#00C0AF") +
+  geom_point(size=2, colour = "#00C0AF")+
+  geom_smooth(method = 'loess',formula = y~x,colour ="#FF67A4") +
+  geom_abline(slope = 0,intercept = 0)+
+  xlab("(a)") +
+  ylab("TWSC/1000 m^3")
+  
+plot_data_b <- as.data.frame(cbind(year_index,grace_b))
+colnames(plot_data_b) <- c("date","grace")
+
+plot_b <- ggplot(data = plot_data_b, aes(x=date, y=grace/1000000000)) +
+  geom_line(size=1, colour = "#00C0AF") +
+  geom_point(size=2, colour = "#00C0AF")+
+  geom_smooth(method = 'loess',formula = y~x,colour ="#FF67A4") +
+  geom_abline(slope = 0,intercept = 0)+
+  xlab("(b)") +
+  ylab("TWSC/1000 m^3")
+
+plot_data_c <- as.data.frame(cbind(year_index,grace_c))
+colnames(plot_data_c) <- c("date","grace")
+
+plot_c <- ggplot(data = plot_data_c, aes(x=date, y=grace/1000000000)) +
+  geom_line(size=1, colour = "#00C0AF") +
+  geom_point(size=2, colour = "#00C0AF")+
+  geom_smooth(method = 'loess',formula = y~x,colour ="#FF67A4") +
+  geom_abline(slope = 0,intercept = 0)+
+  xlab("(c)") +
+  ylab("TWSC/1000 m^3")
+
+plot_data_d <- as.data.frame(cbind(year_index,grace_d))
+colnames(plot_data_d) <- c("date","grace")
+
+plot_d <- ggplot(data = plot_data_d, aes(x=date, y=grace/1000000000)) +
+  geom_line(size=1, colour = "#00C0AF") +
+  geom_point(size=2, colour = "#00C0AF")+
+  geom_smooth(method = 'loess',formula = y~x,colour ="#FF67A4") +
+  geom_abline(slope = 0,intercept = 0)+
+  xlab("(d)") +
+  ylab("TWSC/1000 m^3")
+
+plot_data_e <- as.data.frame(cbind(year_index,grace_e))
+colnames(plot_data_e) <- c("date","grace")
+
+plot_e <- ggplot(data = plot_data_e, aes(x=date, y=grace/1000000000)) +
+  geom_line(size=1, colour = "#00C0AF") +
+  geom_point(size=2, colour = "#00C0AF")+
+  geom_smooth(method = 'loess',formula = y~x,colour ="#FF67A4") +
+  geom_abline(slope = 0,intercept = 0)+
+  xlab("(e)") +
+  ylab("TWSC/1000 m^3")
+
+plot_data_f <- as.data.frame(cbind(year_index,grace_f))
+colnames(plot_data_f) <- c("date","grace")
+
+plot_f <- ggplot(data = plot_data_f, aes(x=date, y=grace/1000000000)) +
+  geom_line(size=1, colour = "#00C0AF") +
+  geom_point(size=2, colour = "#00C0AF")+
+  geom_smooth(method = 'loess',formula = y~x,colour ="#FF67A4") +
+  geom_abline(slope = 0,intercept = 0)+
+  xlab("(f)") +
+  ylab("TWSC/1000 m^3")
+
+plot_data_g <- as.data.frame(cbind(year_index,grace_g))
+colnames(plot_data_g) <- c("date","grace")
+
+plot_g <- ggplot(data = plot_data_g, aes(x=date, y=grace/1000000000)) +
+  geom_line(size=1, colour = "#00C0AF") +
+  geom_point(size=2, colour = "#00C0AF")+
+  geom_smooth(method = 'loess',formula = y~x,colour ="#FF67A4") +
+  geom_abline(slope = 0,intercept = 0)+
+  xlab("(g)") +
+  ylab("TWSC/1000 m^3")
+
+plot_data_h <- as.data.frame(cbind(year_index,grace_h))
+colnames(plot_data_h) <- c("date","grace")
+
+plot_h <- ggplot(data = plot_data_h, aes(x=date, y=grace/1000000000)) +
+  geom_line(size=1, colour = "#00C0AF") +
+  geom_point(size=2, colour = "#00C0AF")+
+  geom_smooth(method = 'loess',formula = y~x,colour ="#FF67A4") +
+  geom_abline(slope = 0,intercept = 0)+
+  xlab("(h)") +
+  ylab("TWSC/1000 m^3")
+
+plot_data_i <- as.data.frame(cbind(year_index,grace_i))
+colnames(plot_data_i) <- c("date","grace")
+
+plot_i <- ggplot(data = plot_data_i, aes(x=date, y=grace/1000000000)) +
+  geom_line(size=1, colour = "#00C0AF") +
+  geom_point(size=2, colour = "#00C0AF")+
+  geom_smooth(method = 'loess',formula = y~x,colour ="#FF67A4") +
+  geom_abline(slope = 0,intercept = 0)+
+  xlab("(i)") +
+  ylab("TWSC/1000 m^3")
+
+ggarrange(plot_a,plot_b,plot_c,plot_d,plot_e,plot_f,plot_g,plot_h,plot_i)
+
+setwd("D:/ndvidata/plot")
+ggsave("yearly_sum_grace.tiff",dpi=1000)
+ggsave('yearly')
