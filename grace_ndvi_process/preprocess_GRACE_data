@@ -1,0 +1,203 @@
+library(rgdal)
+library(raster)
+library(ggplot2)
+library(rasterVis)
+library(RColorBrewer)
+library(gtable)
+library(grid)
+library(tidyverse)
+library(zoo)
+library(Hmisc)
+library(corrplot)
+library(PerformanceAnalytics)
+library(varhandle)
+library(olsrr)
+library(gridExtra)
+library(ggpubr)
+library(mosaic)
+library(mapproj)
+
+## read the date index
+setwd('D:/ndvidata')
+index <- read.csv('index.csv',header = F)
+index <- as.data.frame(index[,5])
+
+## Load the grace data
+for (i in 1:9) {
+  zone_code <- letters[i]
+  dir_name <- paste('D:/ndvidata/grace_chn/',zone_code,'_tif',sep = '')
+  file_name <- paste(zone_code,'cg*.tif',sep = '')
+  setwd(dir_name)
+  grace_data <- sapply(Sys.glob(file_name), raster)
+}
+
+for (i in 1:9) {
+  zone_code <- letters[i]
+  dir_name <- paste('D:/ndvidata/grace_chn/',zone_code,'_tif',sep = '')
+  file_name <- paste(zone_code,'cg*.tif',sep = '')
+  setwd(dir_name)
+  grace_data <- sapply(Sys.glob(file_name), raster)
+  
+  # create an empty matrix to store the mean of grace
+  grace_mean <- grace_data[[1]][[1]] - grace_data[[1]][[1]]
+  
+  # Creat a loop to calculate the mean value of grace data
+  for (j in 1:151 ) {
+    assign(paste0('cg',j,sep=''),grace_data[[j]][[1]])
+  };
+  
+  grace_mean <- matrix(nrow = 151, ncol = 1);
+  
+  for (j in 1:151 ) {
+    grace_points <-rasterToPoints(grace_data[[j]][[1]])
+    grace_mean[j] = sum(grace_points[,3])
+  };
+  
+  # add the date index to grace_mean
+  
+  grace_mean <- cbind(index,grace_mean);
+  
+  colnames(grace_mean) <- c("dates","grace");
+  
+  rm <- transform(grace_mean, ym = as.yearmon(as.character(dates), "%Y%m"));
+  
+  grace_mean <- cbind(index,grace_mean,rm$ym);
+  
+  year <- as.numeric(format(rm$ym,'%Y'));
+  month <- as.numeric(format(rm$ym,'%m'));
+  rm <- cbind(rm,year,month)
+  assign(paste('rm',zone_code,sep = '_'),rm)
+}
+
+# Scatterplot with Trend Line
+p_trend_a <- rm_a %>%
+  ggplot(aes(x=ym,y=(grace * total_area_a/100000000))) +
+  geom_point(size =3,color = "black") +
+  geom_smooth(aes(x=ym,y=grace * total_area_a/100000000,alpha = ""),
+    color = "#FC4E07", fill = "#FC4E07",
+    method = "loess"
+  ) +
+  xlab("(a)") +
+  ylab(expression(paste(
+    "TWSC (million", "/", m^3,
+    ")", sep=""))) +
+  theme(legend.position = 'none');
+
+p_trend_b <- rm_b %>%
+  ggplot(aes(x=ym,y=(grace * total_area_b/100000000))) +
+  geom_point(size =3,color = "black") +
+  geom_smooth(aes(x=ym,y=grace * total_area_b/100000000,alpha = ""),
+              color = "#FC4E07", fill = "#FC4E07",
+              method = "loess"
+  ) +
+  xlab("(b)") +
+  ylab(expression(paste(
+    "TWSC (million", "/", m^3,
+    ")", sep="")))+
+  theme(legend.position = 'none');
+
+p_trend_c <- rm_c %>%
+  ggplot(aes(x=ym,y=(grace * total_area_c/100000000))) +
+  geom_point(size =3,color = "black") +
+  geom_smooth(aes(x=ym,y=grace * total_area_c/100000000,alpha = ""),
+              color = "#FC4E07", fill = "#FC4E07",
+              method = "loess"
+  ) +
+  xlab("(c)") +
+  ylab(expression(paste(
+    "TWSC (million", "/", m^3,
+    ")", sep=""))) +
+  theme(legend.position = 'none');
+
+p_trend_d <- rm_d %>%
+  ggplot(aes(x=ym,y=(grace * total_area_d/100000000))) +
+  geom_point(size =3,color = "black") +
+  geom_smooth(aes(x=ym,y=grace * total_area_d/100000000,alpha = ""),
+              color = "#FC4E07", fill = "#FC4E07",
+              method = "loess"
+  ) +
+  xlab("(d)") +
+  ylab(expression(paste(
+    "TWSC (million", "/", m^3,
+    ")", sep=""))) +
+  theme(legend.position = 'none');
+
+p_trend_e <- rm_e %>%
+  ggplot(aes(x=ym,y=(grace * total_area_e/100000000))) +
+  geom_point(size =3,color = "black") +
+  geom_smooth(aes(x=ym,y=grace * total_area_e/100000000,alpha = ""),
+              color = "#FC4E07", fill = "#FC4E07",
+              method = "loess"
+  ) +
+  xlab("(e)") +
+  ylab(expression(paste(
+    "TWSC (million", "/", m^3,
+    ")", sep=""))) +
+  theme(legend.position = 'none');
+
+p_trend_f <- rm_f %>%
+  ggplot(aes(x=ym,y=(grace * total_area_f/100000000))) +
+  geom_point(size =3,color = "black") +
+  geom_smooth(aes(x=ym,y=grace * total_area_f/100000000,alpha = ""),
+              color = "#FC4E07", fill = "#FC4E07",
+              method = "loess"
+  ) +
+  xlab("(f)") +
+  ylab(expression(paste(
+    "TWSC (million", "/", m^3,
+    ")", sep=""))) +
+  theme(legend.position = 'none');
+
+p_trend_g <- rm_g %>%
+  ggplot(aes(x=ym,y=(grace * total_area_g/100000000))) +
+  geom_point(size =3,color = "black") +
+  geom_smooth(aes(x=ym,y=grace * total_area_g/100000000,alpha = ""),
+              color = "#FC4E07", fill = "#FC4E07",
+              method = "loess"
+  ) +
+  xlab("(g)") +
+  ylab(expression(paste(
+    "TWSC (million", "/", m^3,
+    ")", sep=""))) +
+  theme(legend.position = 'none');
+
+p_trend_h <- rm_h %>%
+  ggplot(aes(x=ym,y=(grace * total_area_h/100000000))) +
+  geom_point(size =3,color = "black") +
+  geom_smooth(aes(x=ym,y=grace * total_area_h/100000000,alpha = ""),
+              color = "#FC4E07", fill = "#FC4E07",
+              method = "loess"
+  ) +
+  xlab("(h)") +
+  ylab(expression(paste(
+    "TWSC (million", "/", m^3,
+    ")", sep=""))) +
+  theme(legend.position = 'none');
+
+
+p_trend_i <- rm_i %>%
+  ggplot(aes(x=ym,y=(grace * total_area_i/100000000))) +
+  geom_point(size =3,color = "black") +
+  geom_smooth(aes(x=ym,y=grace * total_area_i/100000000,alpha = ""),
+              color = "#FC4E07", fill = "#FC4E07",
+              method = "loess"
+  ) +
+  xlab("(i)") +
+  ylab(expression(paste(
+    "TWSC (million", "/", m^3,
+    ")", sep=""))) +
+  theme(legend.position = 'none');
+
+p_plot <- ggarrange(
+  p_trend_a,
+  p_trend_b,
+  p_trend_c,
+  p_trend_d,
+  p_trend_e,
+  p_trend_f,
+  p_trend_g,
+  p_trend_h,
+  p_trend_i,
+  ncol = 3,
+  nrow = 3
+)
