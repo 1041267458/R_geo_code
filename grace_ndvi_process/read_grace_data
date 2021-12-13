@@ -1,0 +1,72 @@
+## load the grace data (variable names need change)
+setwd("D:/ndvidata/grace_chn/a_tif")
+grace_data <- sapply(Sys.glob("acg*.tif"), raster);
+grace_data <- grace_data[1:151]
+
+
+## create an empty matrix to store the mean of grace
+grace_mean <- grace_data[[1]][[1]] - grace_data[[1]][[1]];
+
+## calculate the mean of grace
+for (i in 1:151 ) {
+  assign(paste0('cg',i,sep=''),grace_data[[i]][[1]])
+};
+
+grace_mean <- matrix(nrow = 151, ncol = 1);
+
+for (i in 1:151 ) {
+  grace_mean[i] = mean(rasterToPoints(grace_data[[i]][[1]]))
+};
+
+## add the date index to grace_mean
+
+grace_mean <- cbind(index,grace_mean);
+
+colnames(grace_mean) <- c("dates","grace");
+
+rm <- transform(grace_mean, ym = as.yearmon(as.character(dates), "%Y%m"));
+
+grace_mean <- cbind(index,grace_mean,rm$ym);
+
+year <- as.numeric(format(rm$ym,'%Y'));
+month <- as.numeric(format(rm$ym,'%m'));
+rm <- cbind(rm,year,month);
+
+
+## looking up for missing observations
+
+d <- as.Date(rm$ym)
+date_range <- seq.Date(min(d),max(d),by = "month")
+missing_date <- date_range[!date_range %in% d]
+missing_date <- format(missing_date, "%Y%m")
+missing_date
+length(missing_date)
+
+## insert missing values
+
+mean <- rm %>%
+  group_by(month) %>%
+  summarise(month_mean = mean(grace));
+
+missing_date_grace <- c(1:17);
+missing_date <- as.integer(missing_date);
+missing_date_add_day <- as.Date(paste0(as.character(missing_date), '01'), format='%Y%m%d');
+missing_date_yearmon <- as.yearmon(as.Date(paste0(as.character(missing_date), '01'), format='%Y%m%d'));
+missing_date_year <- as.numeric(format(missing_date_add_day,'%Y'));
+missing_date_month <- as.numeric(format(missing_date_add_day,'%m'));
+
+for (i in 1:17) {
+  date_index <- missing_date_month[i]
+  missing_date_grace[i] <- mean$month_mean[mean$month == date_index]
+};
+
+
+
+grace_data_all_missing <- data.frame(missing_date, missing_date_grace,
+                                     missing_date_yearmon, missing_date_year,
+                                     missing_date_month);
+
+colnames(grace_data_all_missing) <- c("dates","grace","ym","year","month");
+
+rm <- rbind(rm,grace_data_all_missing);
+rm <- rm[order(rm$dates),]
