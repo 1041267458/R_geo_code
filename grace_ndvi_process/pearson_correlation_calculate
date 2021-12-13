@@ -28,24 +28,6 @@ for (i in 2003:2016) {
   assign(ndvi_val_name,ndvi_val_this[,3])
 }
 
-baseline <- (ndvi_point_2004 + ndvi_point_2005 + ndvi_point_2006 + ndvi_point_2007 + ndvi_point_2008 + ndvi_point_2009)/6
-
-ndvi_point_2003[,3] <- ndvi_point_2003[,3] - baseline[,3]
-ndvi_point_2004[,3] <- ndvi_point_2004[,3] - baseline[,3]
-ndvi_point_2005[,3] <- ndvi_point_2005[,3] - baseline[,3]
-ndvi_point_2006[,3] <- ndvi_point_2006[,3] - baseline[,3]
-ndvi_point_2007[,3] <- ndvi_point_2007[,3] - baseline[,3]
-ndvi_point_2008[,3] <- ndvi_point_2008[,3] - baseline[,3]
-ndvi_point_2009[,3] <- ndvi_point_2009[,3] - baseline[,3]
-ndvi_point_2010[,3] <- ndvi_point_2010[,3] - baseline[,3]
-ndvi_point_2011[,3] <- ndvi_point_2011[,3] - baseline[,3]
-ndvi_point_2012[,3] <- ndvi_point_2012[,3] - baseline[,3]
-ndvi_point_2013[,3] <- ndvi_point_2013[,3] - baseline[,3]
-ndvi_point_2014[,3] <- ndvi_point_2014[,3] - baseline[,3]
-ndvi_point_2015[,3] <- ndvi_point_2015[,3] - baseline[,3]
-ndvi_point_2016[,3] <- ndvi_point_2016[,3] - baseline[,3]
-
-
 
 
 
